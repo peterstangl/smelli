@@ -8,6 +8,12 @@ m = flavio.Measurement('CKM ratio measurements')
 m.set_constraint('RKpi(P+->munu)', '1.3368+-0.0032')
 m.set_constraint('DeltaM_d/DeltaM_s', '0.02852+-0.00011')
 
+m2 = flavio.Measurement('HFLAV B -> D(*)lnu Exclusive')
+m2.set_constraint('BR(B0->Dlnu)', '(2.31 ± 0.04 ± 0.09) 1e-2')
+m2.set_constraint('BR(B0->D*lnu)', '(5.06 ± 0.02 ± 0.12) 1e-2')
+flavio.Measurement.del_instance('BaBar B->D*lnu 2007 hadronic tag')
+flavio.Measurement.del_instance('BaBar B0->D*lnu 2007')
+
 
 def get_scheme_definitions():
     return {
@@ -220,3 +226,41 @@ class CKMSchemeRmuBtaunuBxlnuDeltaM:
             (Vcb**2*(-1 + Vub**2) + (Vcb**2 + (-1 + Vcb**2)*Vub**2 + Vub**4)*Vus**2 -
             2*Vcb*Vub*Vus*sqrt((-1 + Vcb**2 + Vub**2)*(-1 + Vub**2 + Vus**2))*cos(delta))**2)
         return J
+
+
+class CKMSchemeRmuBtaunuBDlnuDeltaM:
+    """CKM scheme where the four input observables are given by:
+    - 'RKpi(P+->munu)' (mostly fixing `Vus`)
+    - 'BR(B->Dlnu)' (fixing `Vcb`)
+    - 'BR(B+->taunu)' (fixing `Vub`)
+    - 'DeltaM_d/DeltaM_s' (mostly fixing `delta`)
+    """
+
+    observables=[
+        'RKpi(P+->munu)',
+        'BR(B0->Dlnu)',
+        'BR(B+->taunu)',
+        'DeltaM_d/DeltaM_s'
+    ]
+    ckm_fac = CKMSchemeRmuBtaunuBxlnuDeltaM.ckm_fac
+    get_ckm = CKMSchemeRmuBtaunuBxlnuDeltaM.get_ckm
+    jacobian = CKMSchemeRmuBtaunuBxlnuDeltaM.jacobian
+
+
+class CKMSchemeRmuBtaunuBDstlnuDeltaM:
+    """CKM scheme where the four input observables are given by:
+    - 'RKpi(P+->munu)' (mostly fixing `Vus`)
+    - 'BR(B->D*lnu)' (fixing `Vcb`)
+    - 'BR(B+->taunu)' (fixing `Vub`)
+    - 'DeltaM_d/DeltaM_s' (mostly fixing `delta`)
+    """
+
+    observables=[
+        'RKpi(P+->munu)',
+        'BR(B0->D*lnu)',
+        'BR(B+->taunu)',
+        'DeltaM_d/DeltaM_s'
+    ]
+    ckm_fac = CKMSchemeRmuBtaunuBxlnuDeltaM.ckm_fac
+    get_ckm = CKMSchemeRmuBtaunuBxlnuDeltaM.get_ckm
+    jacobian = CKMSchemeRmuBtaunuBxlnuDeltaM.jacobian
