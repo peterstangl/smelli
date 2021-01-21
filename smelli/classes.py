@@ -16,6 +16,7 @@ import os
 from functools import partial
 from operator import itemgetter
 from numbers import Number
+from smelli import __flavio__version__
 
 
 # by default, smelli uses leading log accuracy for SMEFT running!
@@ -190,7 +191,15 @@ class GlobalLikelihood(object):
                 yaml_dict = flavio.io.yaml.load_include(f)
                 if not self.fix_ckm:
                     yaml_dict['par_obj'] = par_ckm_dict
-                L = FastLikelihood.load_dict(yaml_dict)
+                try:
+                    L = FastLikelihood.load_dict(yaml_dict)
+                    meas_yaml = set(yaml_dict['include_measurements'])
+                    meas_loaded = set(L.full_measurement_likelihood.get_measurements)
+                    meas_missing = meas_yaml-meas_loaded
+                except AssertionError as e:
+                    raise AssertionError('{0}. If your flavio version is below v{1}, please update flavio. If your flavio version is above v{1}, please update smelli.'.format(e,__flavio__version__))
+                if meas_missing:
+                    raise AssertionError('The measurements {0} have not been found. If your flavio version is below v{1}, please update flavio. If your flavio version is above v{1}, please update smelli.'.format(meas_missing,__flavio__version__))
             self.fast_likelihoods[fn] = L
         for fn in self._likelihoods_yaml:
             if include_likelihoods is not None and fn not in include_likelihoods:
@@ -203,7 +212,16 @@ class GlobalLikelihood(object):
                                               'likelihood_higgs.yaml',]:
                 continue
             with open(self._get_yaml_path(fn), 'r') as f:
-                L = Likelihood.load(f)
+                yaml_dict = flavio.io.yaml.load_include(f)
+                try:
+                    L = Likelihood.load_dict(yaml_dict)
+                    meas_yaml = set(yaml_dict['include_measurements'])
+                    meas_loaded = set(L.measurement_likelihood.get_measurements)
+                    meas_missing = meas_yaml-meas_loaded
+                except AssertionError as e:
+                    raise AssertionError('{0}. If your flavio version is below v{1}, please update flavio. If your flavio version is above v{1}, please update smelli.'.format(e,__flavio__version__))
+                if meas_missing:
+                    raise AssertionError('The measurements {0} have not been found. If your flavio version is below v{1}, please update flavio. If your flavio version is above v{1}, please update smelli.'.format(meas_missing,__flavio__version__))
             self.likelihoods[fn] = L
         for name, observables in self._custom_likelihoods_dict.items():
             L = CustomLikelihood(self, observables)
